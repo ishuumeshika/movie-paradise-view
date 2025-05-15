@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, User, Menu, X } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -22,7 +22,12 @@ const Navbar = () => {
       <div className="container flex items-center justify-between h-16 px-4 md:px-6">
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/src/assets/logo.svg" alt="Movie Paradise Logo" className="w-8 h-8" />
+            <div className="w-8 h-8 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e50914" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 11.551V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7.551"/>
+                <path d="m18 2-8.4 7.77m8.4 12.23-8.4-7.77M10 2v10l-7 6v-3.3a4 4 0 0 1 1.9-3.4L10 8"/>
+              </svg>
+            </div>
             <span className="text-xl font-bold tracking-tight text-white hidden sm:inline-block">
               Movie<span className="text-movie-primary">Paradise</span>
             </span>

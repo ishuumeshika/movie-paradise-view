@@ -3,21 +3,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import MovieCard from '@/components/movie/MovieCard';
-import { Play, Star, TrendingUp, Calendar } from 'lucide-react';
+import { TrendingUp, Calendar } from 'lucide-react';
 
 // Mock data
-const featuredMovie = {
-  id: "1",
-  title: "Inception",
-  backgroundUrl: "/lovable-uploads/58e1c07a-c185-4cbf-9980-c8510d036797.png", // Using the second uploaded image
-  year: 2010,
-  rating: 8.8,
-  duration: "2h 28m",
-  genres: ["Sci-Fi", "Action", "Thriller"],
-  overview: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
-  director: "Christopher Nolan"
-};
-
 const topRatedMovies = [
   {
     id: "1",
@@ -141,87 +129,42 @@ const MovieSection = ({ title, icon, movies, viewAllLink }: { title: string; ico
 const Index = () => {
   return (
     <div className="pb-8">
-      {/* Hero Section */}
-      <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
+      {/* Hero Section with uploaded background image */}
+      <section className="relative h-[80vh] min-h-[600px] overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 overflow-hidden">
           <img
-            src={featuredMovie.backgroundUrl}
-            alt="Featured movie background"
+            src="/lovable-uploads/58e1c07a-c185-4cbf-9980-c8510d036797.png"
+            alt="Movie Paradise background"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/50" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background" />
         </div>
         
-        {/* Content */}
-        <div className="container relative z-10 h-full flex flex-col justify-end px-4 pb-16 md:pb-24">
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center gap-1">
-                <Star className="h-5 w-5 fill-movie-accent text-movie-accent" />
-                <span className="font-medium text-white">{featuredMovie.rating.toFixed(1)}</span>
-              </div>
-              <span className="text-white/80">•</span>
-              <span className="text-white/80">{featuredMovie.year}</span>
-              <span className="text-white/80">•</span>
-              <span className="text-white/80">{featuredMovie.duration}</span>
-            </div>
-            
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white text-shadow mb-4">
-              {featuredMovie.title}
+        {/* Content - Centered in the hero section */}
+        <div className="container relative z-10 h-full flex flex-col justify-center items-center px-4">
+          <div className="text-center max-w-3xl">
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white text-shadow mb-4">
+              Movie <span className="text-movie-primary">Paradise</span>
             </h1>
             
-            <div className="mb-6 flex flex-wrap gap-2">
-              {featuredMovie.genres.map((genre) => (
-                <span 
-                  key={genre} 
-                  className="px-3 py-1 text-xs md:text-sm bg-white/10 rounded-full"
-                >
-                  {genre}
-                </span>
-              ))}
-            </div>
-            
-            <p className="text-white/80 text-sm md:text-base mb-8 max-w-xl line-clamp-3">
-              {featuredMovie.overview}
+            <p className="text-white/80 text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+              Your ultimate destination for movie reviews, ratings, and recommendations. Find the best films, share your thoughts, and discover new favorites.
             </p>
             
-            <div className="flex gap-4">
-              <Link to={`/movie/${featuredMovie.id}`}>
-                <Button className="bg-movie-primary hover:bg-movie-secondary">
-                  <Play className="mr-2 h-4 w-4" />
-                  Watch Trailer
-                </Button>
-              </Link>
+            <div className="flex flex-wrap justify-center gap-4">
               <Link to="/browse">
-                <Button variant="outline" className="border-white/20 hover:bg-white/10">
+                <Button className="bg-movie-primary hover:bg-movie-secondary">
                   Browse Movies
                 </Button>
               </Link>
+              <Link to="/login">
+                <Button variant="outline" className="border-white/20 hover:bg-white/10">
+                  Sign In
+                </Button>
+              </Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* App Introduction Section */}
-      <section className="py-16 bg-gradient-to-b from-background to-black/90">
-        <div className="container px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Welcome to <span className="text-movie-primary">Movie Paradise</span></h2>
-          <p className="text-white/70 max-w-2xl mx-auto mb-8">
-            Your ultimate destination for movie reviews, ratings, and recommendations. Browse our collection of top-rated films, discover new releases, and join our community to share your thoughts.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/browse">
-              <Button className="bg-movie-primary hover:bg-movie-secondary">
-                Browse Movies
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="outline" className="border-white/20 hover:bg-white/10">
-                Sign In
-              </Button>
-            </Link>
           </div>
         </div>
       </section>
