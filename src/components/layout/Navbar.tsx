@@ -1,13 +1,26 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Menu, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, Menu, X, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from '@/components/ui/use-toast';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   
@@ -15,6 +28,24 @@ const Navbar = () => {
     e.preventDefault();
     console.log('Searching for:', searchQuery);
     // Implement search functionality here
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been signed out of your account."
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Error signing out",
+        description: "There was a problem signing you out.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -54,16 +85,41 @@ const Navbar = () => {
           </form>
           
           <div className="hidden md:flex items-center gap-2">
-            <Link to="/login">
-              <Button variant="ghost" size="sm" className="hover:text-movie-primary">
-                Sign In
-              </Button>
-            </Link>
-            <Link to="/register">
-              <Button size="sm" className="bg-movie-primary hover:bg-movie-secondary">
-                Sign Up
-              </Button>
-            </Link>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="hover:text-movie-primary">
+                    <User className="h-4 w-4 mr-2" />
+                    {user.email?.split('@')[0]}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    <User className="h-4 w-4 mr-2" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost" size="sm" className="hover:text-movie-primary">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button size="sm" className="bg-movie-primary hover:bg-movie-secondary">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
           
           <Button variant="ghost" size="icon" onClick={toggleMenu} className="md:hidden">
@@ -103,12 +159,33 @@ const Navbar = () => {
             </nav>
             
             <div className="flex flex-col space-y-2 pt-4 border-t border-border">
-              <Link to="/login" onClick={toggleMenu}>
-                <Button variant="outline" className="w-full">Sign In</Button>
-              </Link>
-              <Link to="/register" onClick={toggleMenu}>
-                <Button className="w-full bg-movie-primary hover:bg-movie-secondary">Sign Up</Button>
-              </Link>
+              {user ? (
+                <>
+                  <div className="text-sm text-muted-foreground mb-2">
+                    Signed in as <span className="font-medium">{user.email}</span>
+                  </div>
+                  <Button variant="outline" className="w-full" onClick={() => { toggleMenu(); navigate('/profile'); }}>
+                    <User className="h-4 w-4 mr-2" />
+                    Profile
+                  </Button>
+                  <Button 
+                    className="w-full bg-movie-primary hover:bg-movie-secondary"
+                    onClick={() => { toggleMenu(); handleSignOut(); }}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" onClick={toggleMenu}>
+                    <Button variant="outline" className="w-full">Sign In</Button>
+                  </Link>
+                  <Link to="/register" onClick={toggleMenu}>
+                    <Button className="w-full bg-movie-primary hover:bg-movie-secondary">Sign Up</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 import MainLayout from "@/components/layout/MainLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -17,23 +18,25 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Index />} />
-            <Route path="movie/:id" element={<MovieDetail />} />
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
-            <Route path="admin" element={<AdminDashboard />} />
-            <Route path="browse" element={<Index />} /> {/* Added browse route */}
-            <Route path="top-rated" element={<Index />} /> {/* Added top-rated route */}
-            <Route path="new-releases" element={<Index />} /> {/* Added new-releases route */}
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Index />} />
+              <Route path="movie/:id" element={<MovieDetail />} />
+              <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
+              <Route path="admin" element={<AdminDashboard />} />
+              <Route path="browse" element={<Index />} /> {/* Added browse route */}
+              <Route path="top-rated" element={<Index />} /> {/* Added top-rated route */}
+              <Route path="new-releases" element={<Index />} /> {/* Added new-releases route */}
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

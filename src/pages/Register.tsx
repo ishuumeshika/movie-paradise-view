@@ -1,30 +1,55 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import AuthForm from '@/components/auth/AuthForm';
+import { supabase } from '@/integrations/supabase/client';
 
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   
-  const handleRegister = (data: Record<string, string>) => {
+  const handleRegister = async (data: Record<string, string>) => {
     console.log('Register data:', data);
     
-    // Here you would normally connect to Supabase and create a new user
-    // For now, let's simulate registration with a timeout
-    toast({
-      title: "Creating your account...",
-      description: "Please wait while we set up your new account."
-    });
+    setIsLoading(true);
     
-    setTimeout(() => {
+    try {
+      toast({
+        title: "Creating your account...",
+        description: "Please wait while we set up your new account."
+      });
+      
+      const { error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: window.location.origin
+        }
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
       toast({
         title: "Registration successful",
-        description: "Your account has been created. Welcome to Movie Paradise!"
+        description: "Your account has been created. Please check your email for confirmation."
       });
-      navigate('/');
-    }, 1500);
+      
+      // For better UX, navigate to login instead of homepage since they need to confirm email
+      navigate('/login');
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      toast({
+        title: "Registration failed",
+        description: error.message || "There was a problem creating your account.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   return (
@@ -37,7 +62,7 @@ const Register = () => {
           </p>
         </div>
         
-        <AuthForm type="register" onSubmit={handleRegister} />
+        <AuthForm type="register" onSubmit={handleRegister} isLoading={isLoading} />
       </div>
     </div>
   );

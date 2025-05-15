@@ -68,6 +68,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading = false }
               required
               value={formData.email}
               onChange={handleChange}
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
@@ -80,6 +81,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading = false }
               required
               value={formData.password}
               onChange={handleChange}
+              disabled={isLoading}
             />
           </div>
           {type === 'register' && (
@@ -93,6 +95,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading = false }
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                disabled={isLoading}
               />
             </div>
           )}
