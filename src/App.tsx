@@ -27,8 +27,11 @@ const App = () => (
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="admin" element={<AdminDashboard />} />
+            <Route path="browse" element={<Index />} /> {/* Added browse route */}
+            <Route path="top-rated" element={<Index />} /> {/* Added top-rated route */}
+            <Route path="new-releases" element={<Index />} /> {/* Added new-releases route */}
+            <Route path="*" element={<NotFound />} />
           </Route>
-          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

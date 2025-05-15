@@ -9,7 +9,7 @@ import { Play, Star, TrendingUp, Calendar } from 'lucide-react';
 const featuredMovie = {
   id: "1",
   title: "Inception",
-  backgroundUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5",
+  backgroundUrl: "/lovable-uploads/58e1c07a-c185-4cbf-9980-c8510d036797.png", // Using the second uploaded image
   year: 2010,
   rating: 8.8,
   duration: "2h 28m",
@@ -21,12 +21,12 @@ const featuredMovie = {
 const topRatedMovies = [
   {
     id: "1",
-    title: "Inception",
-    posterUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5",
-    year: 2010,
-    rating: 8.8,
-    duration: "2h 28m",
-    genres: ["Sci-Fi", "Action"]
+    title: "Transformers",
+    posterUrl: "/lovable-uploads/ce4fab71-4763-4809-85fc-3d9334dc557a.png",
+    year: 2023,
+    rating: 8.5,
+    duration: "2h 30m",
+    genres: ["Action", "Sci-Fi"]
   },
   {
     id: "2",
@@ -194,12 +194,34 @@ const Index = () => {
                   Watch Trailer
                 </Button>
               </Link>
-              <Link to={`/movie/${featuredMovie.id}`}>
+              <Link to="/browse">
                 <Button variant="outline" className="border-white/20 hover:bg-white/10">
-                  More Details
+                  Browse Movies
                 </Button>
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* App Introduction Section */}
+      <section className="py-16 bg-gradient-to-b from-background to-black/90">
+        <div className="container px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Welcome to <span className="text-movie-primary">Movie Paradise</span></h2>
+          <p className="text-white/70 max-w-2xl mx-auto mb-8">
+            Your ultimate destination for movie reviews, ratings, and recommendations. Browse our collection of top-rated films, discover new releases, and join our community to share your thoughts.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/browse">
+              <Button className="bg-movie-primary hover:bg-movie-secondary">
+                Browse Movies
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button variant="outline" className="border-white/20 hover:bg-white/10">
+                Sign In
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
