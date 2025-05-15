@@ -131,11 +131,11 @@ const Index = () => {
     <div className="pb-8">
       {/* Hero Section with uploaded background image */}
       <section className="relative h-[80vh] min-h-[600px] overflow-hidden">
-        {/* Background Image */}
+        {/* Background Image - Updated with movie collage */}
         <div className="absolute inset-0 overflow-hidden">
           <img
-            src="/lovable-uploads/58e1c07a-c185-4cbf-9980-c8510d036797.png"
-            alt="Movie Paradise background"
+            src="/lovable-uploads/ece404f6-6f2f-4848-bd81-34d090876771.png"
+            alt="Movie Collage"
             className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/50" />
