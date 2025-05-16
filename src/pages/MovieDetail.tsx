@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,11 +17,11 @@ const MovieDetail = () => {
     title: 'Sample Movie',
     tagline: 'A sample movie for demonstration',
     overview: 'This is a placeholder for a movie detail page. In a real application, you would fetch this information from a database or API using the movie ID from the URL parameters.',
-    posterPath: '/placeholder.svg',
-    backdropPath: '/placeholder.svg',
-    releaseDate: '2025',
-    runtime: 120,
-    voteAverage: 8.5,
+    posterUrl: '/placeholder.svg',
+    backgroundUrl: '/placeholder.svg',
+    year: 2025,
+    rating: 8.5,
+    duration: '120 min',
     genres: ['Action', 'Drama'],
     cast: [
       { name: 'Actor 1', character: 'Character 1', profilePath: '/placeholder.svg' },
@@ -31,11 +32,15 @@ const MovieDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <MovieHero 
+        id={movie.id}
         title={movie.title} 
-        backdropPath={movie.backdropPath}
-        tagline={movie.tagline}
+        backgroundUrl={movie.backgroundUrl}
+        posterUrl={movie.posterUrl}
+        year={movie.year}
+        rating={movie.rating}
+        duration={movie.duration}
         genres={movie.genres}
-        voteAverage={movie.voteAverage}
+        overview={movie.overview}
       />
       
       <div className="container px-4 py-8 md:px-6">
@@ -81,21 +86,21 @@ const MovieDetail = () => {
                   <Star className="h-4 w-4 mr-2 text-movie-primary" />
                   <div>
                     <p className="text-sm font-medium">Rating</p>
-                    <p className="text-sm text-muted-foreground">{movie.voteAverage}/10</p>
+                    <p className="text-sm text-muted-foreground">{movie.rating}/10</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-2 text-movie-primary" />
                   <div>
                     <p className="text-sm font-medium">Runtime</p>
-                    <p className="text-sm text-muted-foreground">{movie.runtime} min</p>
+                    <p className="text-sm text-muted-foreground">{movie.duration}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2 text-movie-primary" />
                   <div>
                     <p className="text-sm font-medium">Release Year</p>
-                    <p className="text-sm text-muted-foreground">{movie.releaseDate}</p>
+                    <p className="text-sm text-muted-foreground">{movie.year}</p>
                   </div>
                 </div>
               </div>
