@@ -1,14 +1,23 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import AuthForm from '@/components/auth/AuthForm';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
   
   const handleRegister = async (data: Record<string, string>) => {
     console.log('Register data:', data);
@@ -42,9 +51,18 @@ const Register = () => {
       navigate('/login');
     } catch (error: any) {
       console.error('Registration error:', error);
+      
+      let errorMessage = "There was a problem creating your account.";
+      
+      if (error.message.includes("already registered")) {
+        errorMessage = "This email is already registered. Please try logging in instead.";
+      } else if (error.message.includes("weak password")) {
+        errorMessage = "Please use a stronger password (at least 6 characters).";
+      }
+      
       toast({
         title: "Registration failed",
-        description: error.message || "There was a problem creating your account.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

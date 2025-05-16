@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface AuthFormProps {
   type: 'login' | 'register';
@@ -20,12 +22,17 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading = false }
     password: '',
     confirmPassword: ''
   });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear error message when user starts typing
+    if (errorMessage) {
+      setErrorMessage(null);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -37,9 +44,22 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading = false }
         description: "Please ensure both passwords are the same.",
         variant: "destructive"
       });
+      setErrorMessage("Passwords don't match");
       return;
     }
 
+    // Validate password length
+    if (formData.password.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive"
+      });
+      setErrorMessage("Password must be at least 6 characters long");
+      return;
+    }
+
+    // Proceed with submission
     onSubmit(formData);
   };
 
@@ -57,6 +77,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading = false }
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {errorMessage && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -64,7 +92,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading = false }
               id="email"
               name="email"
               type="email"
-              placeholder="name@example.com"
+              placeholder="name@email.com"
               required
               value={formData.email}
               onChange={handleChange}
@@ -83,6 +111,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSubmit, isLoading = false }
               onChange={handleChange}
               disabled={isLoading}
             />
+            <p className="text-xs text-muted-foreground">
+              Password must be at least 6 characters long
+            </p>
           </div>
           {type === 'register' && (
             <div className="space-y-2">

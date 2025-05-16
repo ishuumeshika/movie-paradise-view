@@ -1,14 +1,24 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import AuthForm from '@/components/auth/AuthForm';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
   
   const handleLogin = async (data: Record<string, string>) => {
     console.log('Login data:', data);
@@ -38,9 +48,18 @@ const Login = () => {
       navigate('/');
     } catch (error: any) {
       console.error('Login error:', error);
+      
+      let errorMessage = "There was a problem signing you in.";
+      
+      if (error.message === "Invalid login credentials") {
+        errorMessage = "Invalid email or password. Please check your credentials and try again.";
+      } else if (error.message.includes("email")) {
+        errorMessage = "Invalid email format. Please enter a valid email address.";
+      }
+      
       toast({
         title: "Login failed",
-        description: error.message || "There was a problem signing you in.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
