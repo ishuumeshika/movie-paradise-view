@@ -44,7 +44,7 @@ const MovieDetail = () => {
       />
       
       <div className="container px-4 py-8 md:px-6">
-        <Link to="/">
+        <Link to="/movies">
           <Button variant="outline" className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Movies

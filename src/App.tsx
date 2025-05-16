@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import MovieDetail from "./pages/MovieDetail";
 import AdminDashboard from "./pages/AdminDashboard";
+import Movies from "./pages/Movies";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 
@@ -27,11 +28,12 @@ const App = () => (
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Index />} />
               <Route path="movie/:id" element={<MovieDetail />} />
+              <Route path="movies" element={<Movies />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
               <Route path="profile" element={<Profile />} />
               <Route path="admin" element={<AdminDashboard />} />
-              <Route path="browse" element={<Index />} /> {/* Added browse route */}
+              <Route path="browse" element={<Movies />} /> {/* Updated to use Movies component */}
               <Route path="top-rated" element={<Index />} /> {/* Added top-rated route */}
               <Route path="new-releases" element={<Index />} /> {/* Added new-releases route */}
               <Route path="*" element={<NotFound />} />
