@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import MovieDetail from "./pages/MovieDetail";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="movie/:id" element={<MovieDetail />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
+              <Route path="profile" element={<Profile />} />
               <Route path="admin" element={<AdminDashboard />} />
               <Route path="browse" element={<Index />} /> {/* Added browse route */}
               <Route path="top-rated" element={<Index />} /> {/* Added top-rated route */}

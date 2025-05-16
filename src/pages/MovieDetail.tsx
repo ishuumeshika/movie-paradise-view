@@ -1,254 +1,111 @@
-
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, Star, Clock, Calendar } from 'lucide-react';
 import MovieHero from '@/components/movie/MovieHero';
-import { Star, Download, Youtube, Calendar, Clock, User } from 'lucide-react';
 
-// Mock data
-const movie = {
-  id: "1",
-  title: "Inception",
-  posterUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5",
-  backgroundUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5",
-  year: 2010,
-  rating: 8.8,
-  duration: "2h 28m",
-  genres: ["Sci-Fi", "Action", "Thriller"],
-  overview: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
-  director: "Christopher Nolan",
-  cast: ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Ellen Page", "Tom Hardy", "Ken Watanabe"],
-  trailerUrl: "https://www.youtube.com/watch?v=YoHD9XEInc0",
-  downloadUrl: "#"
-};
-
-// Mock reviews
-const reviews = [
-  {
-    id: "r1",
-    userName: "John Doe",
-    rating: 5,
-    comment: "One of the best movies I've ever seen. The concept is mind-blowing and the execution is flawless.",
-    date: "2022-05-15"
-  },
-  {
-    id: "r2",
-    userName: "Jane Smith",
-    rating: 4,
-    comment: "Great movie with an amazing cast. The plot is complex but rewarding if you pay attention.",
-    date: "2022-04-22"
-  },
-  {
-    id: "r3",
-    userName: "Bob Johnson",
-    rating: 4.5,
-    comment: "Christopher Nolan has outdone himself again. The visuals are stunning and the story is captivating.",
-    date: "2022-03-10"
-  }
-];
-
+// This is a placeholder component. In a real application, 
+// you would fetch movie details from a database using the ID from URL params
 const MovieDetail = () => {
   const { id } = useParams();
-  const { toast } = useToast();
-  const [reviewText, setReviewText] = useState('');
-  const [userRating, setUserRating] = useState<number | null>(null);
   
-  const handleAddToWatchlist = () => {
-    toast({
-      title: "Added to Watchlist",
-      description: `${movie.title} has been added to your watchlist.`
-    });
-  };
-  
-  const handleSubmitReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!userRating) {
-      toast({
-        title: "Rating Required",
-        description: "Please select a rating before submitting your review.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Here you would normally save the review to Supabase
-    toast({
-      title: "Review Submitted",
-      description: "Thank you for your review!"
-    });
-    
-    setReviewText('');
-    setUserRating(null);
+  // In a real app, you would fetch movie data based on the ID
+  // For now, we'll use placeholder data
+  const movie = {
+    id: id || '1',
+    title: 'Sample Movie',
+    tagline: 'A sample movie for demonstration',
+    overview: 'This is a placeholder for a movie detail page. In a real application, you would fetch this information from a database or API using the movie ID from the URL parameters.',
+    posterPath: '/placeholder.svg',
+    backdropPath: '/placeholder.svg',
+    releaseDate: '2025',
+    runtime: 120,
+    voteAverage: 8.5,
+    genres: ['Action', 'Drama'],
+    cast: [
+      { name: 'Actor 1', character: 'Character 1', profilePath: '/placeholder.svg' },
+      { name: 'Actor 2', character: 'Character 2', profilePath: '/placeholder.svg' },
+    ]
   };
 
   return (
-    <div className="pb-16">
+    <div className="min-h-screen bg-background">
       <MovieHero 
-        {...movie}
-        onAddToWatchlist={handleAddToWatchlist}
+        title={movie.title} 
+        backdropPath={movie.backdropPath}
+        tagline={movie.tagline}
+        genres={movie.genres}
+        voteAverage={movie.voteAverage}
       />
       
-      <div className="container px-4 py-8">
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="mb-8">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="overview" className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <h2 className="text-2xl font-semibold mb-4">Synopsis</h2>
-                <p className="text-muted-foreground">{movie.overview}</p>
-                
-                <div className="mt-8">
-                  <h3 className="text-xl font-semibold mb-4">Cast</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {movie.cast.map((actor) => (
-                      <span 
-                        key={actor} 
-                        className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm"
-                      >
-                        {actor}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <Card className="bg-card/50 border-border/50">
-                  <CardContent className="p-6 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Release Year</p>
-                        <p className="font-medium">{movie.year}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <Clock className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Duration</p>
-                        <p className="font-medium">{movie.duration}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <User className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Director</p>
-                        <p className="font-medium">{movie.director}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="pt-4 flex flex-col gap-3">
-                      <Button className="w-full">
-                        <Youtube className="mr-2 h-4 w-4" />
-                        Watch on YouTube
-                      </Button>
-                      
-                      <Button variant="outline" className="w-full">
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="reviews" className="space-y-8">
-            {/* Submit Review */}
-            <Card className="bg-card/50 border-border/50">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-4">Write a Review</h3>
-                <form onSubmit={handleSubmitReview} className="space-y-4">
-                  <div>
-                    <p className="text-sm mb-2">Rate this movie:</p>
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map((rating) => (
-                        <button
-                          key={rating}
-                          type="button"
-                          onClick={() => setUserRating(rating)}
-                          className="p-1"
-                        >
-                          <Star 
-                            className={`h-6 w-6 ${
-                              userRating && rating <= userRating 
-                                ? 'fill-movie-accent text-movie-accent' 
-                                : 'text-muted-foreground'
-                            }`}
-                          />
-                        </button>
-                      ))}
-                      {userRating && (
-                        <span className="ml-2 text-sm text-muted-foreground">
-                          ({userRating}/5)
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Textarea
-                      placeholder="Share your thoughts about this movie..."
-                      value={reviewText}
-                      onChange={(e) => setReviewText(e.target.value)}
-                      rows={4}
-                    />
-                  </div>
-                  
-                  <Button type="submit" className="bg-movie-primary hover:bg-movie-secondary">
-                    Submit Review
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-            
-            {/* Reviews List */}
+      <div className="container px-4 py-8 md:px-6">
+        <Link to="/">
+          <Button variant="outline" className="mb-6">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Movies
+          </Button>
+        </Link>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-2 space-y-6">
             <div>
-              <h3 className="text-xl font-semibold mb-4">User Reviews</h3>
-              <div className="space-y-4">
-                {reviews.map((review) => (
-                  <Card key={review.id} className="bg-card/50 border-border/50">
-                    <CardContent className="p-4 md:p-6">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <p className="font-medium">{review.userName}</p>
-                          <div className="flex items-center gap-1 mt-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < review.rating 
-                                    ? 'fill-movie-accent text-movie-accent' 
-                                    : 'text-muted-foreground'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(review.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="text-muted-foreground mt-3">{review.comment}</p>
-                    </CardContent>
-                  </Card>
+              <h2 className="text-xl font-bold mb-3">Overview</h2>
+              <p className="text-muted-foreground">{movie.overview}</p>
+            </div>
+            
+            <div>
+              <h2 className="text-xl font-bold mb-3">Cast</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {movie.cast.map((actor, idx) => (
+                  <div key={idx} className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-full bg-muted overflow-hidden mb-2">
+                      <img 
+                        src={actor.profilePath} 
+                        alt={actor.name}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <p className="font-medium text-sm">{actor.name}</p>
+                    <p className="text-xs text-muted-foreground">{actor.character}</p>
+                  </div>
                 ))}
               </div>
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="bg-card rounded-lg p-4 shadow-sm border border-border/50">
+              <h3 className="font-semibold mb-4">Details</h3>
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <Star className="h-4 w-4 mr-2 text-movie-primary" />
+                  <div>
+                    <p className="text-sm font-medium">Rating</p>
+                    <p className="text-sm text-muted-foreground">{movie.voteAverage}/10</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 mr-2 text-movie-primary" />
+                  <div>
+                    <p className="text-sm font-medium">Runtime</p>
+                    <p className="text-sm text-muted-foreground">{movie.runtime} min</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-2 text-movie-primary" />
+                  <div>
+                    <p className="text-sm font-medium">Release Year</p>
+                    <p className="text-sm text-muted-foreground">{movie.releaseDate}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <Button className="w-full bg-movie-primary hover:bg-movie-secondary">
+              Add to Watchlist
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
