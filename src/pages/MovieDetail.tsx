@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Star, Clock, Calendar, MessageSquare } from 'lucide-react';
@@ -7,8 +6,16 @@ import { useToast } from '@/hooks/use-toast';
 import MovieHero from '@/components/movie/MovieHero';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { 
+  getMovieById, 
+  getCastByMovieId, 
+  getReviewsByMovieId, 
+  addReview,
+  Movie, 
+  CastMember,
+  Review
+} from '@/services/supabase';
 
 interface MovieDetails {
   id: string;
@@ -50,14 +57,8 @@ const MovieDetail = () => {
   const { data: movie, isLoading: isLoadingMovie, error: movieError } = useQuery({
     queryKey: ['movie', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('movies')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) throw error;
-      return data as MovieDetails;
+      if (!id) throw new Error('No movie ID provided');
+      return await getMovieById(id);
     },
     enabled: !!id,
   });
@@ -66,13 +67,8 @@ const MovieDetail = () => {
   const { data: cast, isLoading: isLoadingCast } = useQuery({
     queryKey: ['cast', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('cast_members')
-        .select('*')
-        .eq('movie_id', id);
-      
-      if (error) throw error;
-      return data as CastMember[];
+      if (!id) throw new Error('No movie ID provided');
+      return await getCastByMovieId(id);
     },
     enabled: !!id,
   });
@@ -81,15 +77,8 @@ const MovieDetail = () => {
   const { data: reviews, isLoading: isLoadingReviews, refetch: refetchReviews } = useQuery({
     queryKey: ['reviews', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('reviews')
-        .select('*')
-        .eq('movie_id', id)
-        .eq('is_approved', true)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as Review[];
+      if (!id) throw new Error('No movie ID provided');
+      return await getReviewsByMovieId(id, true);
     },
     enabled: !!id,
   });
@@ -106,17 +95,24 @@ const MovieDetail = () => {
       return;
     }
 
+    if (!id) {
+      toast({
+        title: "Error",
+        description: "Cannot submit review - movie ID is missing",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase.from('reviews').insert({
+      await addReview({
         movie_id: id,
         username,
         rating: reviewRating,
         comment: reviewComment.trim() || null,
       });
-
-      if (error) throw error;
 
       toast({
         title: "Success",
@@ -151,6 +147,7 @@ const MovieDetail = () => {
   }
 
   if (movieError || !movie) {
+    console.error('Error loading movie:', movieError);
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
