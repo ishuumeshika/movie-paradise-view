@@ -1,74 +1,149 @@
 
-// This file will be used when you connect to Supabase
-// To integrate with Supabase, click the green Supabase button in the top right corner
+// This file provides functions for interacting with our Supabase database
 
-// Example interface for a movie in our database
+import { supabase } from '@/integrations/supabase/client';
+
+// Types for our database tables
 export interface Movie {
   id: string;
   title: string;
-  posterUrl: string;
+  tagline?: string;
+  overview: string;
+  poster_url: string;
+  background_url?: string;
   year: number;
   rating: number;
   duration: string;
   genres: string[];
-  overview?: string;
-  trailerUrl?: string;
-  downloadUrl?: string;
+  created_at: string;
+  updated_at: string;
 }
 
-// Once Supabase is connected, you'll be able to:
-// 1. Fetch movies from database
-export const getTopRatedMovies = async () => {
-  // This will be implemented after Supabase connection
-  console.log('Fetch top rated movies from Supabase');
-  return [];
-};
+export interface CastMember {
+  id: string;
+  movie_id: string;
+  name: string;
+  character: string;
+  profile_path?: string;
+  created_at: string;
+}
 
-export const getNewReleases = async () => {
-  // This will be implemented after Supabase connection
-  console.log('Fetch new releases from Supabase');
-  return [];
-};
-
-// 2. Movie details
-export const getMovieById = async (id: string) => {
-  // This will be implemented after Supabase connection
-  console.log(`Fetch movie with ID: ${id}`);
-  return null;
-};
-
-// 3. User authentication
-export const signIn = async (email: string, password: string) => {
-  // This will be implemented after Supabase connection
-  console.log('Sign in with Supabase');
-  return null;
-};
-
-export const signUp = async (email: string, password: string) => {
-  // This will be implemented after Supabase connection
-  console.log('Sign up with Supabase');
-  return null;
-};
-
-// 4. Reviews
 export interface Review {
   id: string;
-  userId: string;
-  movieId: string;
+  movie_id: string;
+  user_id?: string;
+  username: string;
   rating: number;
-  comment: string;
-  createdAt: string;
-  userName?: string;
+  comment?: string;
+  created_at: string;
+  is_approved: boolean;
 }
 
-export const addReview = async (review: Omit<Review, 'id' | 'createdAt' | 'userName'>) => {
-  // This will be implemented after Supabase connection
-  console.log('Add review to Supabase');
-  return null;
+// Movie-related functions
+export const getMovies = async () => {
+  const { data, error } = await supabase
+    .from('movies')
+    .select('*')
+    .order('title');
+  
+  if (error) throw error;
+  return data as Movie[];
 };
 
-export const getReviewsByMovieId = async (movieId: string) => {
-  // This will be implemented after Supabase connection
-  console.log(`Fetch reviews for movie with ID: ${movieId}`);
-  return [];
+export const getTopRatedMovies = async (limit = 5) => {
+  const { data, error } = await supabase
+    .from('movies')
+    .select('*')
+    .order('rating', { ascending: false })
+    .limit(limit);
+  
+  if (error) throw error;
+  return data as Movie[];
+};
+
+export const getNewReleases = async (limit = 5) => {
+  const { data, error } = await supabase
+    .from('movies')
+    .select('*')
+    .order('year', { ascending: false })
+    .limit(limit);
+  
+  if (error) throw error;
+  return data as Movie[];
+};
+
+export const getMovieById = async (id: string) => {
+  const { data, error } = await supabase
+    .from('movies')
+    .select('*')
+    .eq('id', id)
+    .single();
+  
+  if (error) throw error;
+  return data as Movie;
+};
+
+// Cast-related functions
+export const getCastByMovieId = async (movieId: string) => {
+  const { data, error } = await supabase
+    .from('cast_members')
+    .select('*')
+    .eq('movie_id', movieId);
+  
+  if (error) throw error;
+  return data as CastMember[];
+};
+
+// Review-related functions
+export const getReviewsByMovieId = async (movieId: string, onlyApproved = true) => {
+  let query = supabase
+    .from('reviews')
+    .select('*')
+    .eq('movie_id', movieId);
+  
+  if (onlyApproved) {
+    query = query.eq('is_approved', true);
+  }
+  
+  const { data, error } = await query.order('created_at', { ascending: false });
+  
+  if (error) throw error;
+  return data as Review[];
+};
+
+export const addReview = async (review: Omit<Review, 'id' | 'created_at' | 'is_approved'>) => {
+  const { data, error } = await supabase
+    .from('reviews')
+    .insert(review)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data as Review;
+};
+
+// Admin functions
+export const getAllReviews = async (approved?: boolean) => {
+  let query = supabase.from('reviews').select('*, movies!inner(title)');
+  
+  if (typeof approved === 'boolean') {
+    query = query.eq('is_approved', approved);
+  }
+  
+  const { data, error } = await query.order('created_at', { ascending: false });
+  
+  if (error) throw error;
+  return data;
+};
+
+export const updateReviewApproval = async (id: string, isApproved: boolean) => {
+  const { data, error } = await supabase
+    .from('reviews')
+    .update({ is_approved: isApproved })
+    .eq('id', id)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data as Review;
 };

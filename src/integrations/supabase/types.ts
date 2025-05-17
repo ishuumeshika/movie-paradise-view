@@ -9,7 +9,127 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      cast_members: {
+        Row: {
+          character: string
+          created_at: string
+          id: string
+          movie_id: string
+          name: string
+          profile_path: string | null
+        }
+        Insert: {
+          character: string
+          created_at?: string
+          id?: string
+          movie_id: string
+          name: string
+          profile_path?: string | null
+        }
+        Update: {
+          character?: string
+          created_at?: string
+          id?: string
+          movie_id?: string
+          name?: string
+          profile_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cast_members_movie_id_fkey"
+            columns: ["movie_id"]
+            isOneToOne: false
+            referencedRelation: "movies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movies: {
+        Row: {
+          background_url: string | null
+          created_at: string
+          duration: string
+          genres: string[]
+          id: string
+          overview: string
+          poster_url: string
+          rating: number | null
+          tagline: string | null
+          title: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          background_url?: string | null
+          created_at?: string
+          duration: string
+          genres?: string[]
+          id?: string
+          overview: string
+          poster_url: string
+          rating?: number | null
+          tagline?: string | null
+          title: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          background_url?: string | null
+          created_at?: string
+          duration?: string
+          genres?: string[]
+          id?: string
+          overview?: string
+          poster_url?: string
+          rating?: number | null
+          tagline?: string | null
+          title?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          is_approved: boolean | null
+          movie_id: string
+          rating: number
+          user_id: string | null
+          username: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          movie_id: string
+          rating: number
+          user_id?: string | null
+          username: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          movie_id?: string
+          rating?: number
+          user_id?: string | null
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_movie_id_fkey"
+            columns: ["movie_id"]
+            isOneToOne: false
+            referencedRelation: "movies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
