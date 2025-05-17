@@ -191,9 +191,15 @@ export const addReview = async (review: Omit<Review, 'id' | 'created_at' | 'is_a
   console.log(`Adding review for movie: ${review.movie_id}`);
   
   try {
+    // Add console log to see what data we're inserting
+    console.log("Review data being inserted:", review);
+    
     const { data, error } = await supabase
       .from('reviews')
-      .insert(review)
+      .insert({
+        ...review,
+        is_approved: false // Explicitly set is_approved to false
+      })
       .select()
       .single();
     

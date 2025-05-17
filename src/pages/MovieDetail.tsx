@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import MovieHero from '@/components/movie/MovieHero';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   getMovieById, 
   getCastByMovieId, 
@@ -18,10 +18,10 @@ import {
 const MovieDetail = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [username, setUsername] = useState('');
   const [reviewRating, setReviewRating] = useState<number>(5);
   const [reviewComment, setReviewComment] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch movie details
   const { data: movie, isLoading: isLoadingMovie, error: movieError } = useQuery({
@@ -44,13 +44,45 @@ const MovieDetail = () => {
   });
 
   // Fetch approved reviews
-  const { data: reviews, isLoading: isLoadingReviews, refetch: refetchReviews } = useQuery({
+  const { data: reviews, isLoading: isLoadingReviews } = useQuery({
     queryKey: ['reviews', id],
     queryFn: async () => {
       if (!id) throw new Error('No movie ID provided');
       return await getReviewsByMovieId(id, true);
     },
     enabled: !!id,
+  });
+  
+  // Use mutation for adding reviews
+  const reviewMutation = useMutation({
+    mutationFn: (reviewData: {
+      movie_id: string;
+      username: string;
+      rating: number;
+      comment: string | null;
+    }) => addReview(reviewData),
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Your review has been submitted and is pending approval",
+      });
+      
+      // Reset form
+      setUsername('');
+      setReviewRating(5);
+      setReviewComment('');
+      
+      // Refetch reviews to update the list
+      queryClient.invalidateQueries({ queryKey: ['reviews', id] });
+    },
+    onError: (error) => {
+      console.error('Error submitting review:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit your review. Please try again.",
+        variant: "destructive",
+      });
+    }
   });
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -73,39 +105,21 @@ const MovieDetail = () => {
       });
       return;
     }
-
-    setIsSubmitting(true);
     
-    try {
-      await addReview({
-        movie_id: id,
-        username,
-        rating: reviewRating,
-        comment: reviewComment.trim() || null,
-      });
-
-      toast({
-        title: "Success",
-        description: "Your review has been submitted and is pending approval",
-      });
-
-      // Reset form
-      setUsername('');
-      setReviewRating(5);
-      setReviewComment('');
-      
-      // Refetch reviews to update the list
-      refetchReviews();
-    } catch (error) {
-      console.error('Error submitting review:', error);
-      toast({
-        title: "Error",
-        description: "Failed to submit your review. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Log the data we're submitting
+    console.log("Submitting review with data:", {
+      movie_id: id,
+      username,
+      rating: reviewRating,
+      comment: reviewComment.trim() || null
+    });
+    
+    reviewMutation.mutate({
+      movie_id: id,
+      username,
+      rating: reviewRating,
+      comment: reviewComment.trim() || null,
+    });
   };
 
   if (isLoadingMovie) {
@@ -140,7 +154,7 @@ const MovieDetail = () => {
         id={movie.id}
         title={movie.title} 
         backgroundUrl={movie.background_url || '/placeholder.svg'}
-        posterUrl={movie.poster_url}
+        posterUrl={movie.poster_url || '/placeholder.svg'}
         year={movie.year}
         rating={movie.rating}
         duration={movie.duration}
@@ -177,6 +191,9 @@ const MovieDetail = () => {
                             src={actor.profile_path || '/placeholder.svg'} 
                             alt={actor.name}
                             className="object-cover w-full h-full"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/placeholder.svg';
+                            }}
                           />
                         </div>
                         <p className="font-medium text-sm">{actor.name}</p>
@@ -266,9 +283,9 @@ const MovieDetail = () => {
                   <Button 
                     type="submit" 
                     className="bg-movie-primary hover:bg-movie-secondary"
-                    disabled={isSubmitting}
+                    disabled={reviewMutation.isPending}
                   >
-                    {isSubmitting ? 'Submitting...' : 'Submit Review'}
+                    {reviewMutation.isPending ? 'Submitting...' : 'Submit Review'}
                   </Button>
                 </form>
               </div>
