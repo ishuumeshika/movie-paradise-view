@@ -9,6 +9,7 @@ interface MovieCardProps {
   posterUrl: string;
   year: number;
   rating: number;
+  duration?: string; // Added duration property as optional
   genres?: string[];
 }
 
@@ -18,6 +19,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   posterUrl,
   year,
   rating,
+  duration,
   genres
 }) => {
   return (
@@ -46,6 +48,12 @@ const MovieCard: React.FC<MovieCardProps> = ({
           
           <div className="flex items-center text-xs text-muted-foreground">
             <span>{year}</span>
+            {duration && (
+              <>
+                <span className="mx-1">•</span>
+                <span>{duration}</span>
+              </>
+            )}
             {genres && genres.length > 0 && (
               <>
                 <span className="mx-1">•</span>

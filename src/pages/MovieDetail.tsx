@@ -12,38 +12,8 @@ import {
   getCastByMovieId, 
   getReviewsByMovieId, 
   addReview,
-  Movie, 
-  CastMember,
-  Review
+  Movie
 } from '@/services/supabase';
-
-interface MovieDetails {
-  id: string;
-  title: string;
-  tagline: string | null;
-  overview: string;
-  poster_url: string;
-  background_url: string | null;
-  year: number;
-  rating: number;
-  duration: string;
-  genres: string[];
-}
-
-interface CastMember {
-  id: string;
-  name: string;
-  character: string;
-  profile_path: string | null;
-}
-
-interface Review {
-  id: string;
-  username: string;
-  rating: number;
-  comment: string | null;
-  created_at: string;
-}
 
 const MovieDetail = () => {
   const { id } = useParams();
