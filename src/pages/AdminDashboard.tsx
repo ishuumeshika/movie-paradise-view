@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -14,7 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Check, X, Film, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getAllReviews, updateReviewApproval } from '@/services/supabase';
+import { getAllReviews, updateReviewApproval } from '@/services';
 
 const AdminDashboard = () => {
   const { toast } = useToast();

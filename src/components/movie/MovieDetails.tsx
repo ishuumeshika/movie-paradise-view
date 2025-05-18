@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Star, Clock, Calendar } from 'lucide-react';
-import { Movie } from '@/services/supabase';
+import { Movie } from '@/services';
 
 interface MovieDetailsProps {
   movie: Movie;
