@@ -63,11 +63,11 @@ export const getMovieById = async (id: string) => {
   }
   
   try {
-    // UUID validation check (basic pattern)
+    // Basic UUID validation check
     const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidPattern.test(id)) {
       console.error(`Invalid UUID format for movie ID: ${id}`);
-      throw new Error("Invalid movie ID format");
+      throw new Error(`Movie ID '${id}' is not in valid UUID format`);
     }
     
     const { data, error } = await supabase
@@ -79,6 +79,11 @@ export const getMovieById = async (id: string) => {
     if (error) {
       console.error(`Error fetching movie ${id}:`, error);
       throw error;
+    }
+    
+    if (!data) {
+      console.error(`No movie found with ID: ${id}`);
+      throw new Error(`No movie found with ID: ${id}`);
     }
     
     console.log(`Successfully retrieved movie: ${data?.title}`);

@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { Play, Star, Plus } from 'lucide-react';
+import { Play, Star, Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 interface MovieHeroProps {
   id: string;
@@ -29,14 +30,34 @@ const MovieHero: React.FC<MovieHeroProps> = ({
   trailerUrl,
   onAddToWatchlist
 }) => {
+  const { toast } = useToast();
+  
+  // Ensure image URLs have valid defaults
+  const safeBackgroundUrl = backgroundUrl?.trim() ? backgroundUrl : '/placeholder.svg';
+  const safePosterUrl = posterUrl?.trim() ? posterUrl : '/placeholder.svg';
+  
+  const handleWatchTrailer = () => {
+    if (trailerUrl) {
+      window.open(trailerUrl, '_blank');
+    } else {
+      toast({
+        title: "Trailer Not Available",
+        description: "Sorry, the trailer for this movie is not available at the moment.",
+      });
+    }
+  };
+
   return (
     <div className="relative w-full">
       {/* Background Image */}
       <div className="absolute inset-0 overflow-hidden">
         <img
-          src={backgroundUrl}
+          src={safeBackgroundUrl}
           alt={`${title} background`}
           className="h-full w-full object-cover object-top"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/placeholder.svg';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
@@ -49,9 +70,12 @@ const MovieHero: React.FC<MovieHeroProps> = ({
           <div className="flex-shrink-0">
             <div className="relative w-40 md:w-72 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl">
               <img 
-                src={posterUrl} 
+                src={safePosterUrl}
                 alt={`${title} poster`} 
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/placeholder.svg';
+                }}
               />
             </div>
           </div>
@@ -97,12 +121,10 @@ const MovieHero: React.FC<MovieHeroProps> = ({
             
             {/* Actions */}
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              {trailerUrl && (
-                <Button className="bg-movie-primary hover:bg-movie-secondary">
-                  <Play className="mr-2 h-4 w-4" />
-                  Watch Trailer
-                </Button>
-              )}
+              <Button className="bg-movie-primary hover:bg-movie-secondary" onClick={handleWatchTrailer}>
+                <Play className="mr-2 h-4 w-4" />
+                Watch Trailer
+              </Button>
               
               <Button variant="outline" className="border-white/20 hover:bg-white/10" onClick={onAddToWatchlist}>
                 <Plus className="mr-2 h-4 w-4" />

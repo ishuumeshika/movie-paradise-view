@@ -2,6 +2,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getCastByMovieId, CastMember } from '@/services';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface CastListProps {
   movieId: string;
@@ -29,16 +30,17 @@ const CastList: React.FC<CastListProps> = ({ movieId }) => {
         {cast && cast.length > 0 ? (
           cast.map((actor: CastMember) => (
             <div key={actor.id} className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-muted overflow-hidden mb-2">
-                <img 
+              <Avatar className="w-16 h-16 mb-2">
+                <AvatarImage 
                   src={actor.profile_path || '/placeholder.svg'} 
                   alt={actor.name}
-                  className="object-cover w-full h-full"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/placeholder.svg';
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder.svg';
                   }}
                 />
-              </div>
+                <AvatarFallback>{actor.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
               <p className="font-medium text-sm">{actor.name}</p>
               <p className="text-xs text-muted-foreground">{actor.character}</p>
             </div>

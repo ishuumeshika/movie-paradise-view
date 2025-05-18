@@ -2,7 +2,7 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { getMovieById } from '@/services/supabase';
@@ -24,12 +24,20 @@ const MovieDetail = () => {
       return await getMovieById(id);
     },
     enabled: !!id,
+    retry: false,
   });
 
   const handleAddToWatchlist = () => {
     toast({
       title: "Added to Watchlist",
       description: "This movie has been added to your watchlist",
+    });
+  };
+
+  const handleDownload = () => {
+    toast({
+      title: "Download Started",
+      description: "Your movie download has started. Check your downloads folder.",
     });
   };
 
@@ -59,6 +67,11 @@ const MovieDetail = () => {
     );
   }
 
+  // Fake trailer URL - in a real app this would come from the API
+  const trailerUrl = movie?.title === "Inception" 
+    ? "https://www.youtube.com/watch?v=YoHD9XEInc0" 
+    : null;
+
   return (
     <div className="min-h-screen bg-background">
       <MovieHero 
@@ -71,16 +84,24 @@ const MovieDetail = () => {
         duration={movie.duration}
         genres={movie.genres}
         overview={movie.overview}
+        trailerUrl={trailerUrl}
         onAddToWatchlist={handleAddToWatchlist}
       />
       
       <div className="container px-4 py-8 md:px-6">
-        <Link to="/movies">
-          <Button variant="outline" className="mb-6">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Movies
+        <div className="flex justify-between mb-6">
+          <Link to="/movies">
+            <Button variant="outline">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Movies
+            </Button>
+          </Link>
+          
+          <Button onClick={handleDownload} className="bg-movie-primary hover:bg-movie-secondary">
+            <Download className="mr-2 h-4 w-4" />
+            Download
           </Button>
-        </Link>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-8">
