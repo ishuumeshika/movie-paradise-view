@@ -1,4 +1,3 @@
-
 // This file provides functions for interacting with our Supabase database
 
 import { supabase } from '@/integrations/supabase/client';
@@ -246,20 +245,26 @@ export const updateReviewApproval = async (id: string, isApproved: boolean) => {
   console.log(`Updating review ${id} approval status to: ${isApproved}`);
   
   try {
+    // Fix: Remove .single() to handle the case when no rows are returned
+    // Only select data after a successful update
     const { data, error } = await supabase
       .from('reviews')
       .update({ is_approved: isApproved })
       .eq('id', id)
-      .select()
-      .single();
+      .select();
     
     if (error) {
       console.error(`Error updating review ${id}:`, error);
       throw error;
     }
     
+    if (!data || data.length === 0) {
+      console.error(`No review found with id: ${id}`);
+      throw new Error(`No review found with id: ${id}`);
+    }
+    
     console.log(`Review ${id} successfully updated`);
-    return data as Review;
+    return data[0] as Review;
   } catch (error) {
     console.error(`Exception in updateReviewApproval(${id}, ${isApproved}):`, error);
     throw error;

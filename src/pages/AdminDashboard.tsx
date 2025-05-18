@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -38,26 +37,31 @@ const AdminDashboard = () => {
     mutationFn: ({ id, isApproved }: { id: string, isApproved: boolean }) => 
       updateReviewApproval(id, isApproved),
     onSuccess: () => {
+      // Invalidate both pending and approved reviews queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
+      
       toast({
         title: "Success",
         description: "Review status updated successfully",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Error updating review:", error);
       toast({
         title: "Error",
-        description: "Failed to update review status",
+        description: "Failed to update review status. Please check console for details.",
         variant: "destructive",
       });
     },
   });
 
   const handleApproveReview = (id: string) => {
+    console.log(`Approving review with id: ${id}`);
     reviewMutation.mutate({ id, isApproved: true });
   };
 
   const handleRejectReview = (id: string) => {
+    console.log(`Rejecting review with id: ${id}`);
     reviewMutation.mutate({ id, isApproved: false });
   };
 
