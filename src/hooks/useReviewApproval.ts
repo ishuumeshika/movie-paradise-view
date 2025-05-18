@@ -19,11 +19,16 @@ export const useReviewApproval = () => {
         description: "Review status updated successfully",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      // Improving error logging to help debug issues
       console.error("Error updating review:", error);
+      
+      // Provide more specific error message if available
+      const errorMessage = error?.message || "Failed to update review status. Please check console for details.";
+      
       toast({
         title: "Error",
-        description: "Failed to update review status. Please check console for details.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
