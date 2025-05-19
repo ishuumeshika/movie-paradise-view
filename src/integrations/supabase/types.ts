@@ -9,6 +9,21 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       cast_members: {
         Row: {
           character: string
@@ -48,6 +63,7 @@ export type Database = {
         Row: {
           background_url: string | null
           created_at: string
+          download_url: string | null
           duration: string
           genres: string[]
           id: string
@@ -56,12 +72,14 @@ export type Database = {
           rating: number | null
           tagline: string | null
           title: string
+          trailer_url: string | null
           updated_at: string
           year: number
         }
         Insert: {
           background_url?: string | null
           created_at?: string
+          download_url?: string | null
           duration: string
           genres?: string[]
           id?: string
@@ -70,12 +88,14 @@ export type Database = {
           rating?: number | null
           tagline?: string | null
           title: string
+          trailer_url?: string | null
           updated_at?: string
           year: number
         }
         Update: {
           background_url?: string | null
           created_at?: string
+          download_url?: string | null
           duration?: string
           genres?: string[]
           id?: string
@@ -84,6 +104,7 @@ export type Database = {
           rating?: number | null
           tagline?: string | null
           title?: string
+          trailer_url?: string | null
           updated_at?: string
           year?: number
         }
@@ -135,7 +156,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: { uid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

@@ -35,10 +35,14 @@ const MovieDetail = () => {
   };
 
   const handleDownload = () => {
-    toast({
-      title: "Download Started",
-      description: "Your movie download has started. Check your downloads folder.",
-    });
+    if (movie?.download_url) {
+      window.open(movie.download_url, '_blank');
+    } else {
+      toast({
+        title: "Download Started",
+        description: "Your movie download has started. Check your downloads folder.",
+      });
+    }
   };
 
   if (isLoadingMovie) {
@@ -67,10 +71,10 @@ const MovieDetail = () => {
     );
   }
 
-  // Fake trailer URL - in a real app this would come from the API
-  const trailerUrl = movie?.title === "Inception" 
+  // Use the trailer_url from the database if available
+  const trailerUrl = movie.trailer_url || (movie.title === "Inception" 
     ? "https://www.youtube.com/watch?v=YoHD9XEInc0" 
-    : null;
+    : null);
 
   return (
     <div className="min-h-screen bg-background">
@@ -97,7 +101,11 @@ const MovieDetail = () => {
             </Button>
           </Link>
           
-          <Button onClick={handleDownload} className="bg-movie-primary hover:bg-movie-secondary">
+          <Button 
+            onClick={handleDownload} 
+            className="bg-movie-primary hover:bg-movie-secondary"
+            disabled={!movie.download_url && process.env.NODE_ENV === 'production'}
+          >
             <Download className="mr-2 h-4 w-4" />
             Download
           </Button>
