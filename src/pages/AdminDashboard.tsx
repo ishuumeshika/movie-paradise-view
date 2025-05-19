@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAllReviews, getMovies } from '@/services';
@@ -24,16 +23,18 @@ const AdminDashboard = () => {
       return await isAdmin(user.id);
     },
     enabled: !!user?.id,
-    onSuccess: (data) => {
-      setAdminStatus(data);
-      if (!data) {
-        toast({
-          title: "Access Denied",
-          description: "You don't have admin privileges.",
-          variant: "destructive",
-        });
+    meta: {
+      onSuccess: (data: boolean) => {
+        setAdminStatus(data);
+        if (!data) {
+          toast({
+            title: "Access Denied",
+            description: "You don't have admin privileges.",
+            variant: "destructive",
+          });
+        }
       }
-    },
+    }
   });
 
   // Fetch reviews based on approval status

@@ -3,7 +3,7 @@
 
 export * from './types';
 export * from './movieService';
-export * from './castService';
+export { getCastByMovieId as getCastForMovie } from './castService';
 export * from './reviewService';
 export * from './adminService';
 export * from './adminMovieService';

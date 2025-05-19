@@ -15,6 +15,8 @@ export interface Movie {
   genres: string[];
   created_at: string;
   updated_at: string;
+  trailer_url?: string;
+  download_url?: string;
 }
 
 export interface CastMember {

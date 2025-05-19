@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getCastByMovieId, CastMember } from '@/services';
+import { getCastForMovie, CastMember } from '@/services';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
@@ -32,9 +32,11 @@ const CastList: React.FC<CastListProps> = ({ movieId }) => {
       return await isAdmin(user.id);
     },
     enabled: !!user?.id,
-    onSuccess: (data) => {
-      setIsAdminUser(data);
-    },
+    meta: {
+      onSuccess: (data: boolean) => {
+        setIsAdminUser(data);
+      }
+    }
   });
 
   // Fetch cast members
@@ -42,7 +44,7 @@ const CastList: React.FC<CastListProps> = ({ movieId }) => {
     queryKey: ['cast', movieId],
     queryFn: async () => {
       if (!movieId) throw new Error('No movie ID provided');
-      return await getCastByMovieId(movieId);
+      return await getCastForMovie(movieId);
     },
     enabled: !!movieId,
   });

@@ -5,7 +5,7 @@ import { Movie } from './types';
 /**
  * Create a new movie
  */
-export const createMovie = async (movieData: Partial<Movie>): Promise<Movie> => {
+export const createMovie = async (movieData: Omit<Movie, 'id' | 'created_at' | 'updated_at'>): Promise<Movie> => {
   try {
     const { data, error } = await supabase
       .from('movies')
