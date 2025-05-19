@@ -98,7 +98,7 @@ export const updateReviewApproval = async (id: string, isApproved: boolean) => {
     // First check if the review exists
     const { data: existingReview, error: checkError } = await supabase
       .from('reviews')
-      .select('id')
+      .select('id, is_approved')
       .eq('id', id)
       .single();
     
@@ -112,6 +112,12 @@ export const updateReviewApproval = async (id: string, isApproved: boolean) => {
       throw new Error(`No review found with id: ${id}`);
     }
     
+    // If the review is already in the desired state, just return it
+    if (existingReview.is_approved === isApproved) {
+      console.log(`Review ${id} is already ${isApproved ? 'approved' : 'rejected'}`);
+      return existingReview;
+    }
+    
     // Update the review after confirming it exists
     const { data, error } = await supabase
       .from('reviews')
@@ -122,6 +128,11 @@ export const updateReviewApproval = async (id: string, isApproved: boolean) => {
     if (error) {
       console.error(`Error updating review ${id}:`, error);
       throw error;
+    }
+    
+    if (!data || data.length === 0) {
+      console.error(`Update succeeded but no data returned for review ${id}`);
+      throw new Error(`Update succeeded but no data returned for review ${id}`);
     }
     
     console.log(`Review ${id} successfully updated`);

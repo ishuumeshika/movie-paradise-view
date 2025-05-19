@@ -10,13 +10,16 @@ export const useReviewApproval = () => {
   const reviewMutation = useMutation({
     mutationFn: ({ id, isApproved }: { id: string, isApproved: boolean }) => 
       updateReviewApproval(id, isApproved),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       // Invalidate both pending and approved reviews queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
       
       toast({
         title: "Success",
-        description: "Review status updated successfully",
+        description: variables.isApproved 
+          ? "Review approved successfully" 
+          : "Review rejected successfully",
       });
     },
     onError: (error: any) => {

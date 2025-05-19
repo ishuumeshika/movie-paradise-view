@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PendingReviewsTable from './PendingReviewsTable';
 import ApprovedReviewsTable from './ApprovedReviewsTable';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface ReviewManagementProps {
   pendingReviews: any[] | null;
@@ -23,6 +24,16 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({
   onReject
 }) => {
   const [activeTab, setActiveTab] = useState('pending');
+  const queryClient = useQueryClient();
+  
+  // Force refresh review data when tab changes
+  useEffect(() => {
+    if (activeTab === 'approved') {
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
+    } else if (activeTab === 'pending') {
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+    }
+  }, [activeTab, queryClient]);
 
   return (
     <div className="space-y-6">
