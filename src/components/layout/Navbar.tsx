@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Menu, X, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,13 +14,31 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from '@/components/ui/use-toast';
+import { useQuery } from '@tanstack/react-query';
+import { isAdmin } from '@/services/adminService';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { user, signOut } = useAuth();
+  const [isAdminUser, setIsAdminUser] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if current user is admin
+  useQuery({
+    queryKey: ['isAdmin', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return false;
+      return await isAdmin(user.id);
+    },
+    enabled: !!user?.id,
+    meta: {
+      onSuccess: (data: boolean) => {
+        setIsAdminUser(data);
+      }
+    }
+  });
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   
@@ -68,6 +87,11 @@ const Navbar = () => {
             <Link to="/movies" className="text-sm font-medium hover:text-movie-primary transition-colors">Movies</Link>
             <Link to="/top-rated" className="text-sm font-medium hover:text-movie-primary transition-colors">Top Rated</Link>
             <Link to="/new-releases" className="text-sm font-medium hover:text-movie-primary transition-colors">New Releases</Link>
+            {isAdminUser && (
+              <Link to="/admin" className="text-sm font-medium text-movie-primary hover:text-movie-secondary transition-colors">
+                Admin Dashboard
+              </Link>
+            )}
           </nav>
         </div>
         
@@ -99,6 +123,16 @@ const Navbar = () => {
                     <User className="h-4 w-4 mr-2" />
                     Profile
                   </DropdownMenuItem>
+                  {isAdminUser && (
+                    <DropdownMenuItem onClick={() => navigate('/admin')}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                        <rect width="18" height="18" x="3" y="3" rx="2" />
+                        <path d="M9 9h6v6H9z" />
+                        <path d="M12 3v18" />
+                      </svg>
+                      Admin Dashboard
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out
@@ -155,6 +189,11 @@ const Navbar = () => {
               <Link to="/new-releases" className="text-lg font-medium hover:text-movie-primary" onClick={toggleMenu}>
                 New Releases
               </Link>
+              {isAdminUser && (
+                <Link to="/admin" className="text-lg font-medium text-movie-primary hover:text-movie-secondary" onClick={toggleMenu}>
+                  Admin Dashboard
+                </Link>
+              )}
             </nav>
             
             <div className="flex flex-col space-y-2 pt-4 border-t border-border">
@@ -167,6 +206,16 @@ const Navbar = () => {
                     <User className="h-4 w-4 mr-2" />
                     Profile
                   </Button>
+                  {isAdminUser && (
+                    <Button variant="outline" className="w-full" onClick={() => { toggleMenu(); navigate('/admin'); }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                        <rect width="18" height="18" x="3" y="3" rx="2" />
+                        <path d="M9 9h6v6H9z" />
+                        <path d="M12 3v18" />
+                      </svg>
+                      Admin Dashboard
+                    </Button>
+                  )}
                   <Button 
                     className="w-full bg-movie-primary hover:bg-movie-secondary"
                     onClick={() => { toggleMenu(); handleSignOut(); }}
