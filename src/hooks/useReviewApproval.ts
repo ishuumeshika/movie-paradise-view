@@ -27,7 +27,7 @@ export const useReviewApproval = () => {
       console.error("Error updating review:", error);
       
       // Provide more specific error message if available
-      const errorMessage = error?.message || "Failed to update review status. Please check console for details.";
+      const errorMessage = error?.message || "Failed to update review status. Please try again.";
       
       toast({
         title: "Error",

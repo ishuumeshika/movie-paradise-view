@@ -31,7 +31,6 @@ const CastList: React.FC<CastListProps> = ({ movieId }) => {
           cast.map((actor: CastMember) => (
             <div key={actor.id} className="flex flex-col items-center text-center">
               <Avatar className="w-16 h-16 mb-2">
-                {/* Check if profile_path exists and is not empty before using it */}
                 <AvatarImage 
                   src={actor.profile_path && actor.profile_path.trim() ? actor.profile_path : '/placeholder.svg'} 
                   alt={actor.name}

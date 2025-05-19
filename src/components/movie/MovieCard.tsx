@@ -9,7 +9,7 @@ interface MovieCardProps {
   posterUrl: string;
   year: number;
   rating: number;
-  duration?: string; // Added duration property as optional
+  duration?: string;
   genres?: string[];
 }
 

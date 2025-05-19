@@ -119,24 +119,35 @@ export const updateReviewApproval = async (id: string, isApproved: boolean) => {
     }
     
     // Update the review after confirming it exists
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('reviews')
       .update({ is_approved: isApproved })
-      .eq('id', id)
-      .select();
+      .eq('id', id);
     
     if (error) {
       console.error(`Error updating review ${id}:`, error);
       throw error;
     }
     
-    if (!data || data.length === 0) {
-      console.error(`Update succeeded but no data returned for review ${id}`);
-      throw new Error(`Update succeeded but no data returned for review ${id}`);
+    // After successful update, fetch the updated review
+    const { data: updatedReview, error: fetchError } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('id', id)
+      .single();
+      
+    if (fetchError) {
+      console.error(`Error fetching updated review ${id}:`, fetchError);
+      throw fetchError;
     }
     
-    console.log(`Review ${id} successfully updated`);
-    return data[0] as Review;
+    if (!updatedReview) {
+      console.error(`Could not fetch updated review ${id}`);
+      throw new Error(`Could not fetch updated review ${id}`);
+    }
+    
+    console.log(`Review ${id} successfully updated and fetched`);
+    return updatedReview as Review;
   } catch (error) {
     console.error(`Exception in updateReviewApproval(${id}, ${isApproved}):`, error);
     throw error;
