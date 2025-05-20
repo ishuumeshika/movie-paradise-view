@@ -26,14 +26,40 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({
   const [activeTab, setActiveTab] = useState('pending');
   const queryClient = useQueryClient();
   
-  // Force refresh review data when tab changes
+  // Force refresh review data when tab changes or when component mounts
   useEffect(() => {
-    if (activeTab === 'approved') {
-      queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
-    } else if (activeTab === 'pending') {
-      queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
-    }
+    const refreshData = () => {
+      if (activeTab === 'approved') {
+        queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
+      } else if (activeTab === 'pending') {
+        queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+      }
+    };
+    
+    // Refresh data on mount and tab change
+    refreshData();
+    
+    // Set up interval to refresh data periodically
+    const intervalId = setInterval(refreshData, 10000); // Refresh every 10 seconds
+    
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [activeTab, queryClient]);
+
+  // Custom handlers that will refresh data after action
+  const handleApprove = async (id: string) => {
+    await onApprove(id);
+    // Force refresh both tabs data
+    queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+    queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
+  };
+
+  const handleReject = async (id: string) => {
+    await onReject(id);
+    // Force refresh pending data
+    queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+  };
 
   return (
     <div className="space-y-6">
@@ -57,8 +83,8 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({
                 <PendingReviewsTable 
                   reviews={pendingReviews} 
                   isLoading={isPendingLoading} 
-                  onApprove={onApprove}
-                  onReject={onReject}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
                 />
               </CardContent>
             </Card>

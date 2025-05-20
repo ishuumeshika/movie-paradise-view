@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
-import { getMovieById } from '@/services/supabase';
+import { getMovieById } from '@/services/movieService';
 import MovieHero from '@/components/movie/MovieHero';
 import ReviewForm from '@/components/movie/ReviewForm';
 import ReviewList from '@/components/movie/ReviewList';
@@ -36,11 +36,18 @@ const MovieDetail = () => {
 
   const handleDownload = () => {
     if (movie?.download_url) {
+      // Open download url in new tab
       window.open(movie.download_url, '_blank');
-    } else {
+      
       toast({
         title: "Download Started",
-        description: "Your movie download has started. Check your downloads folder.",
+        description: "Your movie download has started.",
+      });
+    } else {
+      toast({
+        title: "Download Not Available",
+        description: "This movie doesn't have a download link available.",
+        variant: "destructive"
       });
     }
   };
@@ -104,7 +111,7 @@ const MovieDetail = () => {
           <Button 
             onClick={handleDownload} 
             className="bg-movie-primary hover:bg-movie-secondary"
-            disabled={!movie.download_url && process.env.NODE_ENV === 'production'}
+            disabled={!movie.download_url}
           >
             <Download className="mr-2 h-4 w-4" />
             Download

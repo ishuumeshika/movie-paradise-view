@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+
+import React, { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllReviews, getMovies } from '@/services';
 import DashboardStats from '@/components/admin/DashboardStats';
 import ReviewManagement from '@/components/admin/ReviewManagement';
@@ -14,6 +15,25 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [adminStatus, setAdminStatus] = useState<boolean | null>(null);
+  const [activeTab, setActiveTab] = useState('reviews');
+  const queryClient = useQueryClient();
+  
+  // Set up periodic data refresh
+  useEffect(() => {
+    // Initial refresh
+    const refreshData = () => {
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-movies'] });
+    };
+    
+    // Refresh every 15 seconds
+    const intervalId = setInterval(refreshData, 15000);
+    
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [queryClient]);
   
   // Check if current user is admin
   useQuery({
@@ -42,12 +62,16 @@ const AdminDashboard = () => {
     queryKey: ['reviews', 'pending'],
     queryFn: () => getAllReviews(false),
     enabled: adminStatus === true,
+    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   const { data: approvedReviews, isLoading: isApprovedLoading } = useQuery({
     queryKey: ['reviews', 'approved'],
     queryFn: () => getAllReviews(true),
     enabled: adminStatus === true,
+    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   // Fetch all movies
@@ -55,10 +79,24 @@ const AdminDashboard = () => {
     queryKey: ['admin-movies'],
     queryFn: getMovies,
     enabled: adminStatus === true,
+    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   // Use the review approval hook
   const { handleApproveReview, handleRejectReview } = useReviewApproval();
+
+  // Handle tab change and refresh related data
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    
+    if (value === 'reviews') {
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
+    } else if (value === 'movies') {
+      queryClient.invalidateQueries({ queryKey: ['admin-movies'] });
+    }
+  };
 
   if (!user) {
     return (
@@ -88,7 +126,7 @@ const AdminDashboard = () => {
         approvedReviewsCount={approvedReviews?.length || 0}
       />
       
-      <Tabs defaultValue="reviews" className="mt-6">
+      <Tabs defaultValue="reviews" className="mt-6" onValueChange={handleTabChange}>
         <TabsList className="mb-6">
           <TabsTrigger value="reviews">Review Management</TabsTrigger>
           <TabsTrigger value="movies">Movie Management</TabsTrigger>
