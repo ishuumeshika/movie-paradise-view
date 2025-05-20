@@ -12,6 +12,7 @@ export const useReviewApproval = () => {
       updateReviewApproval(id, isApproved),
     onSuccess: (data, variables) => {
       // Force refresh data after mutation succeeds
+      queryClient.invalidateQueries({ queryKey: ['reviews'] });
       queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
       queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
       
@@ -35,6 +36,16 @@ export const useReviewApproval = () => {
   });
 
   const handleApproveReview = async (id: string) => {
+    if (!id) {
+      console.error("Invalid review ID provided");
+      toast({
+        title: "Error",
+        description: "Invalid review ID",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     console.log(`Approving review with id: ${id}`);
     try {
       await reviewMutation.mutateAsync({ id, isApproved: true });
@@ -44,6 +55,16 @@ export const useReviewApproval = () => {
   };
 
   const handleRejectReview = async (id: string) => {
+    if (!id) {
+      console.error("Invalid review ID provided");
+      toast({
+        title: "Error",
+        description: "Invalid review ID",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     console.log(`Rejecting review with id: ${id}`);
     try {
       await reviewMutation.mutateAsync({ id, isApproved: false });

@@ -93,6 +93,11 @@ export const getAllReviews = async (approved?: boolean) => {
 export const updateReviewApproval = async (id: string, isApproved: boolean) => {
   console.log(`Updating review ${id} approval status to: ${isApproved}`);
   
+  if (!id) {
+    console.error("Invalid review ID provided");
+    throw new Error("Invalid review ID");
+  }
+  
   try {
     // Check if the review exists before updating
     const { data: existingReview, error: checkError } = await supabase
@@ -112,37 +117,21 @@ export const updateReviewApproval = async (id: string, isApproved: boolean) => {
       throw new Error(errorMessage);
     }
     
-    // If already in desired state, just return
-    if (existingReview.is_approved === isApproved) {
-      console.log(`Review ${id} is already ${isApproved ? 'approved' : 'rejected'}`);
-      return existingReview;
-    }
-    
     // Update the review
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('reviews')
       .update({ is_approved: isApproved })
-      .eq('id', id);
+      .eq('id', id)
+      .select()
+      .single();
     
     if (error) {
       console.error(`Error updating review ${id}:`, error);
       throw error;
     }
     
-    // Fetch the updated review
-    const { data: updatedReview, error: fetchError } = await supabase
-      .from('reviews')
-      .select('*')
-      .eq('id', id)
-      .single();
-      
-    if (fetchError) {
-      console.error(`Error fetching updated review ${id}:`, fetchError);
-      throw fetchError;
-    }
-    
     console.log(`Review ${id} successfully updated to approval status: ${isApproved}`);
-    return updatedReview as Review;
+    return data as Review;
   } catch (error) {
     console.error(`Exception in updateReviewApproval(${id}, ${isApproved}):`, error);
     throw error;

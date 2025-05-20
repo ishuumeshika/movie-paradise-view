@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllReviews, getMovies } from '@/services';
 import DashboardStats from '@/components/admin/DashboardStats';
@@ -18,52 +18,38 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('reviews');
   const queryClient = useQueryClient();
   
-  // Set up more frequent data refresh (every 3 seconds)
-  useEffect(() => {
-    const refreshData = () => {
-      console.log('Refreshing admin dashboard data...');
-      
-      // Only refresh the active tab data to optimize performance
-      if (activeTab === 'reviews') {
-        queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
-        queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
-      } else if (activeTab === 'movies') {
-        queryClient.invalidateQueries({ queryKey: ['admin-movies'] });
-      }
-    };
-    
-    // Initial refresh
-    refreshData();
-    
-    // Refresh every 3 seconds
-    const intervalId = setInterval(refreshData, 3000);
-    
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [queryClient, activeTab]);
-  
   // Check if current user is admin
-  useQuery({
+  const { isLoading: isAdminCheckLoading } = useQuery({
     queryKey: ['isAdmin', user?.id],
     queryFn: async () => {
       if (!user?.id) return false;
-      return await isAdmin(user.id);
-    },
-    enabled: !!user?.id,
-    refetchOnWindowFocus: true,
-    meta: {
-      onSuccess: (data: boolean) => {
-        setAdminStatus(data);
-        if (!data) {
+      
+      try {
+        const isAdminResult = await isAdmin(user.id);
+        setAdminStatus(isAdminResult);
+        
+        if (!isAdminResult) {
           toast({
             title: "Access Denied",
             description: "You don't have admin privileges.",
             variant: "destructive",
           });
         }
+        
+        return isAdminResult;
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+        toast({
+          title: "Error",
+          description: "Failed to check admin privileges.",
+          variant: "destructive",
+        });
+        return false;
       }
-    }
+    },
+    enabled: !!user?.id,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 
   // Fetch reviews based on approval status with more frequent updates
@@ -71,8 +57,8 @@ const AdminDashboard = () => {
     queryKey: ['reviews', 'pending'],
     queryFn: () => getAllReviews(false),
     enabled: adminStatus === true,
-    staleTime: 1000, // Consider data stale after 1 second
-    refetchOnWindowFocus: true, 
+    staleTime: 0, // Consider data always stale
+    refetchOnWindowFocus: true,
     refetchInterval: 3000, // Refetch every 3 seconds
   });
 
@@ -80,7 +66,7 @@ const AdminDashboard = () => {
     queryKey: ['reviews', 'approved'],
     queryFn: () => getAllReviews(true),
     enabled: adminStatus === true,
-    staleTime: 1000, // Consider data stale after 1 second
+    staleTime: 0, // Consider data always stale
     refetchOnWindowFocus: true,
     refetchInterval: 3000, // Refetch every 3 seconds
   });
@@ -90,12 +76,17 @@ const AdminDashboard = () => {
     queryKey: ['admin-movies'],
     queryFn: getMovies,
     enabled: adminStatus === true,
-    staleTime: 3000,
+    staleTime: 0, // Consider data always stale
     refetchOnWindowFocus: true,
+    refetchInterval: 5000, // Refresh every 5 seconds
   });
 
   // Use the review approval hook
-  const { handleApproveReview, handleRejectReview } = useReviewApproval();
+  const { 
+    handleApproveReview, 
+    handleRejectReview, 
+    isLoading: isReviewActionLoading 
+  } = useReviewApproval();
 
   // Handle tab change and refresh related data immediately
   const handleTabChange = (value: string) => {
@@ -111,6 +102,15 @@ const AdminDashboard = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-movies'] });
     }
   };
+
+  if (isAdminCheckLoading) {
+    return (
+      <div className="container px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+        <p className="text-muted-foreground">Loading admin status...</p>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -150,8 +150,8 @@ const AdminDashboard = () => {
           <ReviewManagement 
             pendingReviews={pendingReviews}
             approvedReviews={approvedReviews}
-            isPendingLoading={isPendingLoading}
-            isApprovedLoading={isApprovedLoading}
+            isPendingLoading={isPendingLoading || isReviewActionLoading}
+            isApprovedLoading={isApprovedLoading || isReviewActionLoading}
             onApprove={handleApproveReview}
             onReject={handleRejectReview}
           />

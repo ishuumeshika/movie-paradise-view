@@ -1,11 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import PendingReviewsTable from './PendingReviewsTable';
 import ApprovedReviewsTable from './ApprovedReviewsTable';
 import { useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
 
 interface ReviewManagementProps {
   pendingReviews: any[] | null;
@@ -26,46 +25,17 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('pending');
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   
-  // Refresh data when tab changes or component mounts with decreased interval (3s)
-  useEffect(() => {
-    const refreshData = () => {
-      console.log('Refreshing review data for tab:', activeTab);
-      if (activeTab === 'approved') {
-        queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
-      } else if (activeTab === 'pending') {
-        queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
-      }
-    };
-    
-    // Initial refresh
-    refreshData();
-    
-    // Refresh every 3 seconds
-    const intervalId = setInterval(refreshData, 3000);
-    
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [activeTab, queryClient]);
-
   const handleApprove = async (id: string) => {
     try {
       console.log('Handling approve review:', id);
       await onApprove(id);
       
       // Force refresh both tabs data
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
-        queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
-      }, 500);
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to approve review",
-        variant: "destructive",
-      });
+      console.error('Error approving review:', error);
     }
   };
 
@@ -75,15 +45,9 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({
       await onReject(id);
       
       // Force refresh pending data
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
-      }, 500);
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to reject review",
-        variant: "destructive",
-      });
+      console.error('Error rejecting review:', error);
     }
   };
 
