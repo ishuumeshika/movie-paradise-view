@@ -48,7 +48,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
         <div className="mt-2">
           <div className="flex items-center gap-1 mb-1">
             <Star className="h-4 w-4 fill-movie-accent text-movie-accent" />
-            <span className="text-sm font-medium">{rating.toFixed(1)}</span>
+            <span className="text-sm font-medium">{rating ? rating.toFixed(1) : 'N/A'}</span>
           </div>
           
           <h3 className="font-medium text-sm truncate">{title}</h3>

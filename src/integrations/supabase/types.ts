@@ -156,6 +156,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_create_movie: {
+        Args: { movie_data: Json }
+        Returns: Json
+      }
+      admin_delete_movie: {
+        Args: { movie_id: string }
+        Returns: undefined
+      }
+      admin_update_movie: {
+        Args: { movie_id: string; movie_data: Json }
+        Returns: Json
+      }
       is_admin: {
         Args: { uid: string }
         Returns: boolean

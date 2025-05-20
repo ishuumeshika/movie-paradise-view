@@ -22,13 +22,17 @@ const AdminDashboard = () => {
   useEffect(() => {
     // Initial refresh
     const refreshData = () => {
+      console.log('Refreshing dashboard data...');
       queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
       queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
       queryClient.invalidateQueries({ queryKey: ['admin-movies'] });
     };
     
-    // Refresh every 15 seconds
-    const intervalId = setInterval(refreshData, 15000);
+    // Initial refresh
+    refreshData();
+    
+    // Refresh every 10 seconds
+    const intervalId = setInterval(refreshData, 10000);
     
     return () => {
       clearInterval(intervalId);
@@ -43,6 +47,7 @@ const AdminDashboard = () => {
       return await isAdmin(user.id);
     },
     enabled: !!user?.id,
+    refetchOnWindowFocus: true,
     meta: {
       onSuccess: (data: boolean) => {
         setAdminStatus(data);
@@ -64,6 +69,7 @@ const AdminDashboard = () => {
     enabled: adminStatus === true,
     staleTime: 5000, // Consider data stale after 5 seconds
     refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchInterval: 10000, // Refetch every 10 seconds
   });
 
   const { data: approvedReviews, isLoading: isApprovedLoading } = useQuery({
@@ -72,6 +78,7 @@ const AdminDashboard = () => {
     enabled: adminStatus === true,
     staleTime: 5000, // Consider data stale after 5 seconds
     refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchInterval: 10000, // Refetch every 10 seconds
   });
 
   // Fetch all movies
@@ -81,6 +88,7 @@ const AdminDashboard = () => {
     enabled: adminStatus === true,
     staleTime: 5000, // Consider data stale after 5 seconds
     refetchOnWindowFocus: true, // Refetch when window regains focus
+    refetchInterval: 10000, // Refetch every 10 seconds
   });
 
   // Use the review approval hook
