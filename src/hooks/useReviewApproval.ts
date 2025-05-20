@@ -11,7 +11,7 @@ export const useReviewApproval = () => {
     mutationFn: ({ id, isApproved }: { id: string, isApproved: boolean }) => 
       updateReviewApproval(id, isApproved),
     onSuccess: (data, variables) => {
-      // Invalidate both pending and approved reviews queries to refresh data
+      // Force refresh data after mutation succeeds
       queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
       queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
       
@@ -23,11 +23,8 @@ export const useReviewApproval = () => {
       });
     },
     onError: (error: any) => {
-      // Improving error logging to help debug issues
       console.error("Error updating review:", error);
-      
-      // Provide more specific error message if available
-      const errorMessage = error?.message || "Failed to update review status. Please try again.";
+      const errorMessage = error?.message || "Failed to update review status";
       
       toast({
         title: "Error",
@@ -37,14 +34,22 @@ export const useReviewApproval = () => {
     },
   });
 
-  const handleApproveReview = (id: string) => {
+  const handleApproveReview = async (id: string) => {
     console.log(`Approving review with id: ${id}`);
-    reviewMutation.mutate({ id, isApproved: true });
+    try {
+      await reviewMutation.mutateAsync({ id, isApproved: true });
+    } catch (error) {
+      console.error("Error in handleApproveReview:", error);
+    }
   };
 
-  const handleRejectReview = (id: string) => {
+  const handleRejectReview = async (id: string) => {
     console.log(`Rejecting review with id: ${id}`);
-    reviewMutation.mutate({ id, isApproved: false });
+    try {
+      await reviewMutation.mutateAsync({ id, isApproved: false });
+    } catch (error) {
+      console.error("Error in handleRejectReview:", error);
+    }
   };
 
   return {

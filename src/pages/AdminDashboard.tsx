@@ -18,26 +18,30 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('reviews');
   const queryClient = useQueryClient();
   
-  // Set up periodic data refresh
+  // Set up more frequent data refresh (every 3 seconds)
   useEffect(() => {
-    // Initial refresh
     const refreshData = () => {
-      console.log('Refreshing dashboard data...');
-      queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
-      queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-movies'] });
+      console.log('Refreshing admin dashboard data...');
+      
+      // Only refresh the active tab data to optimize performance
+      if (activeTab === 'reviews') {
+        queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+        queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
+      } else if (activeTab === 'movies') {
+        queryClient.invalidateQueries({ queryKey: ['admin-movies'] });
+      }
     };
     
     // Initial refresh
     refreshData();
     
-    // Refresh every 10 seconds
-    const intervalId = setInterval(refreshData, 10000);
+    // Refresh every 3 seconds
+    const intervalId = setInterval(refreshData, 3000);
     
     return () => {
       clearInterval(intervalId);
     };
-  }, [queryClient]);
+  }, [queryClient, activeTab]);
   
   // Check if current user is admin
   useQuery({
@@ -62,23 +66,23 @@ const AdminDashboard = () => {
     }
   });
 
-  // Fetch reviews based on approval status
+  // Fetch reviews based on approval status with more frequent updates
   const { data: pendingReviews, isLoading: isPendingLoading } = useQuery({
     queryKey: ['reviews', 'pending'],
     queryFn: () => getAllReviews(false),
     enabled: adminStatus === true,
-    staleTime: 5000, // Consider data stale after 5 seconds
-    refetchOnWindowFocus: true, // Refetch when window regains focus
-    refetchInterval: 10000, // Refetch every 10 seconds
+    staleTime: 1000, // Consider data stale after 1 second
+    refetchOnWindowFocus: true, 
+    refetchInterval: 3000, // Refetch every 3 seconds
   });
 
   const { data: approvedReviews, isLoading: isApprovedLoading } = useQuery({
     queryKey: ['reviews', 'approved'],
     queryFn: () => getAllReviews(true),
     enabled: adminStatus === true,
-    staleTime: 5000, // Consider data stale after 5 seconds
-    refetchOnWindowFocus: true, // Refetch when window regains focus
-    refetchInterval: 10000, // Refetch every 10 seconds
+    staleTime: 1000, // Consider data stale after 1 second
+    refetchOnWindowFocus: true,
+    refetchInterval: 3000, // Refetch every 3 seconds
   });
 
   // Fetch all movies
@@ -86,22 +90,24 @@ const AdminDashboard = () => {
     queryKey: ['admin-movies'],
     queryFn: getMovies,
     enabled: adminStatus === true,
-    staleTime: 5000, // Consider data stale after 5 seconds
-    refetchOnWindowFocus: true, // Refetch when window regains focus
-    refetchInterval: 10000, // Refetch every 10 seconds
+    staleTime: 3000,
+    refetchOnWindowFocus: true,
   });
 
   // Use the review approval hook
   const { handleApproveReview, handleRejectReview } = useReviewApproval();
 
-  // Handle tab change and refresh related data
+  // Handle tab change and refresh related data immediately
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     
+    // Immediately refresh the data for the newly selected tab
     if (value === 'reviews') {
+      console.log('Switching to reviews tab, refreshing reviews data');
       queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
       queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
     } else if (value === 'movies') {
+      console.log('Switching to movies tab, refreshing movies data');
       queryClient.invalidateQueries({ queryKey: ['admin-movies'] });
     }
   };
