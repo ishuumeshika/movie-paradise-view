@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Movie } from './types';
+import { Json } from '@/integrations/supabase/types';
 
 /**
  * Create a new movie
@@ -16,7 +17,8 @@ export const createMovie = async (movieData: Omit<Movie, 'id' | 'created_at' | '
       throw error;
     }
     
-    return data as Movie;
+    // Apply proper type casting to the JSON response
+    return data as unknown as Movie;
   } catch (error) {
     console.error("Exception in createMovie:", error);
     throw error;
@@ -40,7 +42,8 @@ export const updateMovie = async (id: string, movieData: Partial<Movie>): Promis
       throw error;
     }
     
-    return data as Movie;
+    // Apply proper type casting to the JSON response
+    return data as unknown as Movie;
   } catch (error) {
     console.error(`Exception in updateMovie(${id}):`, error);
     throw error;
