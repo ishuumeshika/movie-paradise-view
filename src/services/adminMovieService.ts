@@ -17,7 +17,11 @@ export const createMovie = async (movieData: Omit<Movie, 'id' | 'created_at' | '
       throw error;
     }
     
-    // Apply proper type casting to the JSON response
+    if (!data) {
+      throw new Error("No data returned from create movie operation");
+    }
+    
+    // Explicitly cast the JSON data to the Movie type
     return data as unknown as Movie;
   } catch (error) {
     console.error("Exception in createMovie:", error);
@@ -42,7 +46,11 @@ export const updateMovie = async (id: string, movieData: Partial<Movie>): Promis
       throw error;
     }
     
-    // Apply proper type casting to the JSON response
+    if (!data) {
+      throw new Error(`No data returned from update movie operation for ID: ${id}`);
+    }
+    
+    // Explicitly cast the JSON data to the Movie type
     return data as unknown as Movie;
   } catch (error) {
     console.error(`Exception in updateMovie(${id}):`, error);
