@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Movie } from './types';
 
@@ -7,11 +6,9 @@ import { Movie } from './types';
  */
 export const createMovie = async (movieData: Omit<Movie, 'id' | 'created_at' | 'updated_at'>): Promise<Movie> => {
   try {
+    // Use RPC to bypass RLS for authenticated admin users
     const { data, error } = await supabase
-      .from('movies')
-      .insert(movieData)
-      .select()
-      .single();
+      .rpc('admin_create_movie', { movie_data: movieData });
     
     if (error) {
       console.error("Error creating movie:", error);
@@ -30,12 +27,12 @@ export const createMovie = async (movieData: Omit<Movie, 'id' | 'created_at' | '
  */
 export const updateMovie = async (id: string, movieData: Partial<Movie>): Promise<Movie> => {
   try {
+    // Use RPC to bypass RLS for authenticated admin users
     const { data, error } = await supabase
-      .from('movies')
-      .update(movieData)
-      .eq('id', id)
-      .select()
-      .single();
+      .rpc('admin_update_movie', { 
+        movie_id: id,
+        movie_data: movieData 
+      });
     
     if (error) {
       console.error(`Error updating movie ${id}:`, error);
@@ -54,10 +51,9 @@ export const updateMovie = async (id: string, movieData: Partial<Movie>): Promis
  */
 export const deleteMovie = async (id: string): Promise<void> => {
   try {
+    // Use RPC to bypass RLS for authenticated admin users
     const { error } = await supabase
-      .from('movies')
-      .delete()
-      .eq('id', id);
+      .rpc('admin_delete_movie', { movie_id: id });
     
     if (error) {
       console.error(`Error deleting movie ${id}:`, error);

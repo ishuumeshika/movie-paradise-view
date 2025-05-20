@@ -25,6 +25,8 @@ const MovieDetail = () => {
     },
     enabled: !!id,
     retry: false,
+    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchOnWindowFocus: true, // Refresh when window regains focus
   });
 
   const handleAddToWatchlist = () => {
@@ -95,7 +97,7 @@ const MovieDetail = () => {
         duration={movie.duration}
         genres={movie.genres}
         overview={movie.overview}
-        trailerUrl={trailerUrl}
+        trailerUrl={movie.trailer_url}
         onAddToWatchlist={handleAddToWatchlist}
       />
       

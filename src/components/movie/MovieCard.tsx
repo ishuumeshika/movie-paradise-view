@@ -23,7 +23,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   genres
 }) => {
   // Ensure posterUrl has a valid default if it's undefined or empty
-  const imageUrl = posterUrl?.trim() ? posterUrl : '/placeholder.svg';
+  const imageUrl = posterUrl && posterUrl.trim() ? posterUrl : '/placeholder.svg';
 
   return (
     <Link to={`/movie/${id}`} className="block">

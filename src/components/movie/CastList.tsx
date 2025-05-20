@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getCastForMovie, CastMember } from '@/services';
+import { getCastForMovie } from '@/services';
+import { CastMember } from '@/services/types';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
@@ -47,6 +47,8 @@ const CastList: React.FC<CastListProps> = ({ movieId }) => {
       return await getCastForMovie(movieId);
     },
     enabled: !!movieId,
+    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchOnWindowFocus: true, // Refresh on window focus
   });
 
   const { 
@@ -132,7 +134,7 @@ const CastList: React.FC<CastListProps> = ({ movieId }) => {
               )}
               <Avatar className="w-16 h-16 mb-2">
                 <AvatarImage 
-                  src={actor.profile_path && actor.profile_path.trim() ? actor.profile_path : '/placeholder.svg'} 
+                  src={(actor.profile_path && actor.profile_path.trim()) ? actor.profile_path : '/placeholder.svg'} 
                   alt={actor.name}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;

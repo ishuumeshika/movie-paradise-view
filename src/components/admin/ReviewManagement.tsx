@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import PendingReviewsTable from './PendingReviewsTable';
 import ApprovedReviewsTable from './ApprovedReviewsTable';
 import { useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
 
 interface ReviewManagementProps {
   pendingReviews: any[] | null;
@@ -25,6 +26,7 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('pending');
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   
   // Force refresh review data when tab changes or when component mounts
   useEffect(() => {
@@ -40,7 +42,7 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({
     refreshData();
     
     // Set up interval to refresh data periodically
-    const intervalId = setInterval(refreshData, 10000); // Refresh every 10 seconds
+    const intervalId = setInterval(refreshData, 5000); // Refresh every 5 seconds
     
     return () => {
       clearInterval(intervalId);
@@ -49,16 +51,42 @@ const ReviewManagement: React.FC<ReviewManagementProps> = ({
 
   // Custom handlers that will refresh data after action
   const handleApprove = async (id: string) => {
-    await onApprove(id);
-    // Force refresh both tabs data
-    queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
-    queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
+    try {
+      await onApprove(id);
+      // Force refresh both tabs data
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'approved'] });
+      
+      toast({
+        title: "Success",
+        description: "Review approved successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to approve review",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleReject = async (id: string) => {
-    await onReject(id);
-    // Force refresh pending data
-    queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+    try {
+      await onReject(id);
+      // Force refresh pending data
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'pending'] });
+      
+      toast({
+        title: "Success",
+        description: "Review rejected successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reject review",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
